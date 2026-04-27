@@ -20,18 +20,18 @@ public:
 public slots:
     void setStructureType(const QString &type);
     void insertElement(const QString &value);
-    void removeLastElement();
     void replaceElement(int index, const QString &newValue);
     void clearAll();
     double getMedian() const;
     void cyclicShift(int positions);
+    void removeCorrectElement();
 
 private:
     void rebuildCells();
-    void animateInsert(const QString &value, int byteSize);   // <-- два параметра!
     void animateRemoveLast();
     void animateReplace(int index, const QString &newValue);
-
+    void rebuildCellsInverted();
+    void animateRemove(int widgetIndex);
     QString generateAddress(int byteOffset) const;
     int totalSizeUpTo(int count) const;
 
@@ -41,7 +41,7 @@ private:
     QBoxLayout *m_layout;
     QVector<CellWidget *> m_cells;
     QString m_currentType;
-
+    bool m_isAnimating;
     static const int BASE_ADDRESS = 0x1000;
 };
 

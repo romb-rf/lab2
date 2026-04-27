@@ -35,15 +35,16 @@ public:
     Q_INVOKABLE void replaceElement(int index, const QString &newValue);
     Q_INVOKABLE void shiftElements(int positions);
     Q_INVOKABLE void clear();
-
     Q_INVOKABLE double getMedian();
     Q_INVOKABLE void cyclicShift(int positions);
+    Q_INVOKABLE void clearAll();
     QStringList getDisplayElements() const;
     int getElementSize(const QString &input) const;
 
 signals:
     void structureChanged();
     void elementsChanged();
+    void elementCountChanged();
     void errorOccurred(const QString &message);
     void operationVisualized(const QString &operation, const QVariantList &params);
 private:
@@ -60,7 +61,6 @@ private:
     Element parseInput(const QString &input);
     QVariant elementToVariant(const Element &e) const;
 
-    // Возвращает указатель на активную структуру (или nullptr)
     DataStructure* currentStructure() const;
 };
 

@@ -21,12 +21,8 @@ QVariantList DataManager::elements() const {
 }
 //количество элементов
 int DataManager::elementCount() const {
-    switch (m_currentStruct) {
-    case StructType::Array:  return static_cast<int>(m_array->size());
-    case StructType::Vector: return static_cast<int>(m_vector->size());
-    case StructType::Stack:  return static_cast<int>(m_stack->size());
-    case StructType::Queue:  return static_cast<int>(m_queue->size());
-    }
+
+    return m_elementsCache.size();
     return 0;
 }
 //приобразование в нужный тип
@@ -117,8 +113,9 @@ void DataManager::addElement(const QString &input) {
     updateElementsProperty();
     emit elementsChanged();
     emit operationVisualized("add", QVariantList());
+    emit elementCountChanged();
 }
-//удаление элемента
+
 void DataManager::removeElement() {
     try {
         switch (m_currentStruct) {
@@ -133,17 +130,12 @@ void DataManager::removeElement() {
     }
     updateElementsProperty();
     emit elementsChanged();
-    emit operationVisualized("remove", QVariantList());
+    emit elementCountChanged();
 }
-//замена по индексу
+
 void DataManager::replaceElement(int index, const QString &newValue) {
-    // QVariant oldVal;
-    // switch (m_currentStruct) {
-    // case StructType::Array:  if (index < (int)m_array->size()) oldVal = elementToVariant(m_array->getElements()[index]); break;
-    // case StructType::Vector: if (index < (int)m_vector->size()) oldVal = elementToVariant(m_vector->getElements()[index]); break;
-    // }
+    Element el = parseInput(newValue);
     try {
-        Element el = parseInput(newValue);
         switch (m_currentStruct) {
         case StructType::Array:  m_array->replace(index, el); break;
         case StructType::Vector: m_vector->replace(index, el); break;
@@ -154,9 +146,9 @@ void DataManager::replaceElement(int index, const QString &newValue) {
         emit errorOccurred(e.what());
         return;
     }
+
     updateElementsProperty();
     emit elementsChanged();
-    // emit operationVisualized("replace", QVariantList({index, oldVal, newValue}));
 }
 //сдвиг
 void DataManager::shiftElements(int positions) {
@@ -173,7 +165,7 @@ void DataManager::shiftElements(int positions) {
     }
     updateElementsProperty();
     emit elementsChanged();
-    // emit operationVisualized("shift", QVariantList({positions}));
+
 }
 //очистка
 void DataManager::clear() {
@@ -191,6 +183,7 @@ void DataManager::clear() {
     updateElementsProperty();
     emit elementsChanged();
     emit operationVisualized("clear", QVariantList());
+    emit elementCountChanged();
 }
 //получение медианы
 double DataManager::getMedian() {
@@ -237,7 +230,7 @@ void DataManager::cyclicShift(int positions) {
 }
 int DataManager::getElementSize(const QString &input) const
 {
-    // Пробуем интерпретировать как целое
+    // интерпретировать как целое
     bool ok;
     input.toInt(&ok);
     if (ok) return sizeof(int);
@@ -247,5 +240,10 @@ int DataManager::getElementSize(const QString &input) const
     if (ok) return sizeof(double);
 
     // иначе строка
-    return input.toUtf8().size() + 1; // размер в байтах + нуль-терминатор
+    return input.toUtf8().size() + 1;
+}
+void DataManager::clearAll() {
+    m_elementsCache.clear();
+    emit elementsChanged();
+    emit elementCountChanged();
 }

@@ -3,7 +3,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-// Вспомогательная функция: размер в байтах для QVariant
+//размер в байтах для QVariant
 static int getVariantByteSize(const QVariant &var)
 {
     switch (var.typeId()) {
@@ -30,10 +30,6 @@ StructureVisualizer::StructureVisualizer(DataManager *manager, QWidget *parent)
     mainLayout->addWidget(m_scrollArea);
     setLayout(mainLayout);
 
-    connect(m_manager, &DataManager::structureChanged,
-            this, &StructureVisualizer::rebuildCells);
-    connect(m_manager, &DataManager::elementsChanged,
-            this, &StructureVisualizer::rebuildCells);
 }
 
 QString StructureVisualizer::generateAddress(int byteOffset) const
@@ -50,100 +46,157 @@ int StructureVisualizer::totalSizeUpTo(int count) const
         total += getVariantByteSize(elems.at(i));
     return total;
 }
-
 void StructureVisualizer::setStructureType(const QString &type)
 {
+
     m_currentType = type;
-    qDeleteAll(m_cells);
-    m_cells.clear();
 
-    QLayoutItem *child;
-    while ((child = m_layout->takeAt(0)) != nullptr)
-        delete child;
-
+    // уничтожение старого слоя
+    QLayout *oldLayout = m_container->layout();
+    if (oldLayout) {
+        QLayoutItem *item;
+        while ((item = oldLayout->takeAt(0)) != nullptr) {
+            if (item->widget())
+                delete item->widget();
+            delete item;
+        }
+        delete oldLayout;
+    }
+    // новый слой
     if (type == "Array" || type == "Vector") {
-        delete m_container->layout();
         m_layout = new QHBoxLayout(m_container);
         m_layout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     } else {
-        delete m_container->layout();
         m_layout = new QVBoxLayout(m_container);
-        m_layout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+        m_layout->setAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+
+        m_layout->addStretch(1);
     }
-    m_container->setLayout(m_layout);
+
     rebuildCells();
 }
 
 void StructureVisualizer::rebuildCells()
 {
-    qDeleteAll(m_cells);
+    while (m_layout->count() > 0) {
+        QLayoutItem *item = m_layout->takeAt(0);
+        if (item->widget()) delete item->widget();
+        delete item;
+    }
     m_cells.clear();
 
-    QLayoutItem *child;
-    while ((child = m_layout->takeAt(0)) != nullptr)
-        delete child;
+    if (m_currentType == "Stack" || m_currentType == "Queue") {
+        m_layout->addStretch(1);
 
-    const QVariantList elems = m_manager->elements();
-    int currentOffset = 0;
+        const QVariantList elems = m_manager->elements();
+        int currentOffset = 0;
 
-    for (const QVariant &var : elems) {
-        const int byteSize = getVariantByteSize(var);
-        CellWidget *cell = new CellWidget(generateAddress(currentOffset),
-                                          var.toString(),
-                                          byteSize,
-                                          m_container);
-        m_layout->addWidget(cell);
-        m_cells.append(cell);
-        currentOffset += byteSize;
+        for (int i = 0; i < elems.size(); ++i) {
+            const QVariant &var = elems.at(i);
+            const int byteSize = getVariantByteSize(var);
+            CellWidget *cell = new CellWidget(generateAddress(currentOffset),
+                                              var.toString(),
+                                              byteSize,
+                                              m_container);
+            m_layout->insertWidget(1, cell);
+            m_cells.prepend(cell);
+            currentOffset += byteSize;
+        }
+    } else {
+        const QVariantList elems = m_manager->elements();
+        int currentOffset = 0;
+        for (int i = 0; i < elems.size(); ++i) {
+            const QVariant &var = elems.at(i);
+            const int byteSize = getVariantByteSize(var);
+            CellWidget *cell = new CellWidget(generateAddress(currentOffset),
+                                              var.toString(),
+                                              byteSize,
+                                              m_container);
+            m_layout->addWidget(cell);
+            m_cells.append(cell);
+            currentOffset += byteSize;
+        }
     }
 }
 
 void StructureVisualizer::insertElement(const QString &value)
 {
-    const int byteSize = m_manager->getElementSize(value);
-    animateInsert(value, byteSize);
+    m_manager->addElement(value);
+    rebuildCells();
+
+    if (!m_cells.isEmpty()) {
+        CellWidget *cell = nullptr;
+        if (m_currentType == "Stack" || m_currentType == "Queue") {
+            cell = m_cells.first();
+        } else {
+            cell = m_cells.last();
+        }
+        cell->setOpacity(0.0);
+        QPropertyAnimation *fadeIn = new QPropertyAnimation(cell, "opacity");
+        fadeIn->setDuration(300);
+        fadeIn->setStartValue(0.0);
+        fadeIn->setEndValue(1.0);
+        fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
+    }
 }
 
-void StructureVisualizer::animateInsert(const QString &value, int byteSize)
+void StructureVisualizer::removeCorrectElement() {
+    if (m_cells.isEmpty()) {
+        m_manager->removeElement();
+        return;
+    }
+
+    if (m_isAnimating) return;
+    m_isAnimating = true;
+
+    int widgetIndex;
+    if (m_currentType == "Stack") {
+        widgetIndex = 0;
+    } else if (m_currentType == "Queue") {
+        widgetIndex = m_cells.size() - 1;
+    } else {
+        widgetIndex = m_cells.size() - 1;
+    }
+
+    animateRemove(widgetIndex);
+}
+void StructureVisualizer::replaceElement(int visualIndex, const QString &newValue)
 {
-    const int currentEnd = totalSizeUpTo(m_cells.size());
+    if (visualIndex < 0 || visualIndex >= m_cells.size()) {
+        m_manager->replaceElement(visualIndex, newValue);
+        return;
+    }
 
-    CellWidget *cell = new CellWidget(generateAddress(currentEnd),
-                                      value,
-                                      byteSize,
-                                      m_container);
-    cell->setOpacity(0.0);
-    m_layout->addWidget(cell);
-    m_cells.append(cell);
-
+    int modelIndex;
+    int total = m_cells.size();
+    if (m_currentType == "Stack" || m_currentType == "Queue") {
+        modelIndex = total - 1 - visualIndex;
+    } else {
+        modelIndex = visualIndex;
+    }
+    CellWidget *cell = m_cells.at(visualIndex);
     auto *group = new QSequentialAnimationGroup(this);
 
-    QPropertyAnimation *allocAnim = new QPropertyAnimation(cell, "opacity");
-    allocAnim->setDuration(300);
-    allocAnim->setStartValue(0.0);
-    allocAnim->setEndValue(0.8);
-    group->addAnimation(allocAnim);
-    group->addPause(200);
+    QPropertyAnimation *blink = new QPropertyAnimation(cell, "opacity");
+    blink->setDuration(150);
+    blink->setStartValue(1.0);
+    blink->setEndValue(0.2);
+    blink->setLoopCount(2);
 
-    QPropertyAnimation *writeAnim = new QPropertyAnimation(cell, "opacity");
-    writeAnim->setDuration(300);
-    writeAnim->setStartValue(0.8);
-    writeAnim->setEndValue(1.0);
-    group->addAnimation(writeAnim);
+    group->addAnimation(blink);
+    group->addPause(100);
 
-    connect(group, &QSequentialAnimationGroup::finished, this, [this, value]() {
-        m_manager->addElement(value);
+    connect(group, &QSequentialAnimationGroup::finished, this, [this, modelIndex, newValue]() {
+        m_manager->replaceElement(modelIndex, newValue);
         rebuildCells();
     });
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
 }
+void StructureVisualizer::animateRemove(int widgetIndex) {
+    if (widgetIndex < 0 || widgetIndex >= m_cells.size()) return;
 
-void StructureVisualizer::removeLastElement()
-{
-    if (m_cells.isEmpty()) return;
-
-    CellWidget *cell = m_cells.last();
+    CellWidget *cell = m_cells.at(widgetIndex);
     auto *group = new QSequentialAnimationGroup(this);
 
     QPropertyAnimation *highlight = new QPropertyAnimation(cell, "opacity");
@@ -161,42 +214,19 @@ void StructureVisualizer::removeLastElement()
     group->addPause(100);
     group->addAnimation(fadeOut);
 
-    connect(group, &QSequentialAnimationGroup::finished, this, [this]() {
+    QString currentType = m_currentType;
+
+    connect(group, &QSequentialAnimationGroup::finished, this, [this, currentType]() {
         m_manager->removeElement();
         rebuildCells();
+        m_isAnimating = false;
     });
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
 }
-
-void StructureVisualizer::replaceElement(int index, const QString &newValue)
-{
-    if (index < 0 || index >= m_cells.size()) return;
-
-    CellWidget *cell = m_cells.at(index);
-    auto *group = new QSequentialAnimationGroup(this);
-
-    QPropertyAnimation *blink = new QPropertyAnimation(cell, "opacity");
-    blink->setDuration(150);
-    blink->setStartValue(1.0);
-    blink->setEndValue(0.2);
-    blink->setLoopCount(2);
-
-    group->addAnimation(blink);
-    group->addPause(100);
-
-    connect(group, &QSequentialAnimationGroup::finished, this, [this, index, newValue]() {
-        m_manager->replaceElement(index, newValue);
-        rebuildCells();
-    });
-
-    group->start(QAbstractAnimation::DeleteWhenStopped);
-}
-
 void StructureVisualizer::clearAll()
 {
     m_manager->clear();
-    rebuildCells();
 }
 
 double StructureVisualizer::getMedian() const

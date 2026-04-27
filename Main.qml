@@ -15,15 +15,6 @@ ApplicationWindow {
 
     property var visWin: null
 
-    Component.onCompleted: {
-        var comp = Qt.createComponent("visual.qml");
-        if (comp.status === Component.Ready) {
-            visWin = comp.createObject(root);
-        } else {
-            console.error("Error loading Visualization.qml: " + comp.errorString());
-        }
-    }
-
     // Фон
     Rectangle {
         anchors.fill: parent
@@ -390,7 +381,7 @@ ApplicationWindow {
                                     text: "Удалить последний элемент"
                                     Layout.fillWidth: true
                                     // !!! Замена на визуализатор
-                                    onClicked: visualizer.removeLastElement()
+                                    onClicked: visualizer.removeCorrectElement()
                                     Material.background: Material.Red
                                     contentItem: Text {
                                         text: parent.text

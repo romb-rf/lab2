@@ -9,9 +9,7 @@ class CellWidget : public QWidget
     Q_OBJECT
     Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
 public:
-    // теперь 4 аргумента: адрес, значение, размер в байтах, родитель
-    explicit CellWidget(const QString &address, const QString &value,
-                        int byteSize = 0, QWidget *parent = nullptr);
+    explicit CellWidget(const QString &address, const QString &value,int byteSize = 0, QWidget *parent = nullptr);
 
     void setAddress(const QString &addr);
     void setValue(const QString &val);

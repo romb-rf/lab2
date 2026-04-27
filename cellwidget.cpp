@@ -12,18 +12,18 @@ CellWidget::CellWidget(const QString &address, const QString &value,
 
     auto *layout = new QVBoxLayout(this);
 
-    // Адрес
+    // адрес
     m_addressLabel = new QLabel(address, this);
     m_addressLabel->setAlignment(Qt::AlignCenter);
     m_addressLabel->setStyleSheet("font-size: 10px; color: #9e9e9e; border: none;");
 
-    // Значение
+    // значение
     m_valueLabel = new QLabel(value, this);
     m_valueLabel->setAlignment(Qt::AlignCenter);
     m_valueLabel->setStyleSheet(
         "font-size: 18px; font-weight: bold; color: #283593; border: none;");
 
-    // Размер
+    // размер
     m_sizeLabel = new QLabel(QString("%1 bytes").arg(byteSize), this);
     m_sizeLabel->setAlignment(Qt::AlignCenter);
     m_sizeLabel->setStyleSheet("font-size: 9px; color: #9e9e9e; border: none;");

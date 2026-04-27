@@ -1,4 +1,3 @@
-// visualizationwindow.cpp
 #include "visualwindow.h"
 #include <QVBoxLayout>
 
@@ -14,10 +13,17 @@ VisualizationWindow::VisualizationWindow(DataManager *manager, QWidget *parent)
     setLayout(layout);
 }
 
-void VisualizationWindow::showWindow() { show(); raise(); }
+void VisualizationWindow::showWindow()
+{
+    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+    show();
+    raise();
+}
 void VisualizationWindow::setStructureType(const QString &type) { m_visualizer->setStructureType(type); }
 void VisualizationWindow::insertElement(const QString &value) { m_visualizer->insertElement(value); }
-void VisualizationWindow::removeLastElement() { m_visualizer->removeLastElement(); }
+void VisualizationWindow::removeCorrectElement() {
+    m_visualizer->removeCorrectElement();
+}
 void VisualizationWindow::replaceElement(int index, const QString &newValue) { m_visualizer->replaceElement(index, newValue); }
 void VisualizationWindow::clearAll() { m_visualizer->clearAll(); }
 double VisualizationWindow::getMedian() const { return m_visualizer->getMedian(); }

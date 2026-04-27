@@ -10,8 +10,7 @@ int main(int argc, char *argv[])
     DataManager dataManager;
     VisualizationWindow visWindow(&dataManager);
 
-    // Показываем окно визуализации сразу
-    visWindow.show();
+
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("dataManager", &dataManager);
     engine.rootContext()->setContextProperty("visualizer", &visWindow);
