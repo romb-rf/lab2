@@ -137,11 +137,11 @@ void DataManager::removeElement() {
 }
 //замена по индексу
 void DataManager::replaceElement(int index, const QString &newValue) {
-    QVariant oldVal;
-    switch (m_currentStruct) {
-    case StructType::Array:  if (index < (int)m_array->size()) oldVal = elementToVariant(m_array->getElements()[index]); break;
-    case StructType::Vector: if (index < (int)m_vector->size()) oldVal = elementToVariant(m_vector->getElements()[index]); break;
-    }
+    // QVariant oldVal;
+    // switch (m_currentStruct) {
+    // case StructType::Array:  if (index < (int)m_array->size()) oldVal = elementToVariant(m_array->getElements()[index]); break;
+    // case StructType::Vector: if (index < (int)m_vector->size()) oldVal = elementToVariant(m_vector->getElements()[index]); break;
+    // }
     try {
         Element el = parseInput(newValue);
         switch (m_currentStruct) {
@@ -156,7 +156,7 @@ void DataManager::replaceElement(int index, const QString &newValue) {
     }
     updateElementsProperty();
     emit elementsChanged();
-    emit operationVisualized("replace", QVariantList({index, oldVal, newValue}));
+    // emit operationVisualized("replace", QVariantList({index, oldVal, newValue}));
 }
 //сдвиг
 void DataManager::shiftElements(int positions) {
@@ -173,7 +173,7 @@ void DataManager::shiftElements(int positions) {
     }
     updateElementsProperty();
     emit elementsChanged();
-    emit operationVisualized("shift", QVariantList({positions}));
+    // emit operationVisualized("shift", QVariantList({positions}));
 }
 //очистка
 void DataManager::clear() {
