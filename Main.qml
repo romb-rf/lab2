@@ -15,14 +15,14 @@ ApplicationWindow {
 
     property var visWin: null
 
-        Component.onCompleted: {
-            var comp = Qt.createComponent("visual.qml");
-            if (comp.status === Component.Ready) {
-                visWin = comp.createObject(root);
-            } else {
-                console.error("Error loading Visualization.qml: " + comp.errorString());
-            }
+    Component.onCompleted: {
+        var comp = Qt.createComponent("visual.qml");
+        if (comp.status === Component.Ready) {
+            visWin = comp.createObject(root);
+        } else {
+            console.error("Error loading Visualization.qml: " + comp.errorString());
         }
+    }
 
     // Фон
     Rectangle {
@@ -32,20 +32,24 @@ ApplicationWindow {
             GradientStop { position: 1.0; color: "#c5cae9" }
         }
     }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 20
         spacing: 15
+
         // Заголовок и выбор структуры
         RowLayout {
             Layout.fillWidth: true
             spacing: 15
+
             Text {
                 text: "Тип Структуры:"
                 font.pixelSize: 18
                 font.bold: true
                 color: "#1a237e"
             }
+
             ComboBox {
                 id: structureCombo
                 model: ["Array", "Vector", "Stack", "Queue"]
@@ -83,9 +87,16 @@ ApplicationWindow {
                         context.fill();
                     }
                 }
-                onCurrentTextChanged: dataManager.setStructureType(currentText)
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                // ВАЖНО: при смене типа дёргаем и dataManager, и визуализатор
+                onCurrentTextChanged: {
+                    dataManager.setStructureType(currentText);
+                    visualizer.setStructureType(currentText);
+                }
             }
+
             Item { Layout.fillWidth: true }
+
             // текущий тип
             Rectangle {
                 radius: 20
@@ -103,11 +114,13 @@ ApplicationWindow {
                 }
             }
         }
+
         // основное поле
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: 20
+
             // таблица
             Rectangle {
                 Layout.fillWidth: true
@@ -120,10 +133,12 @@ ApplicationWindow {
                 layer.enabled: true
                 layer.smooth: true
                 layer.samples: 8
+
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 10
                     spacing: 0
+
                     Text {
                         text: "Элементы"
                         font.pixelSize: 18
@@ -131,11 +146,13 @@ ApplicationWindow {
                         color: "#1a237e"
                         bottomPadding: 5
                     }
+
                     Rectangle {
                         Layout.fillWidth: true
                         height: 30
                         color: "#e0e0e0"
                         radius: 4
+
                         Row {
                             anchors.fill: parent
                             Rectangle {
@@ -164,6 +181,7 @@ ApplicationWindow {
                             }
                         }
                     }
+
                     ListView {
                         id: listView
                         Layout.fillWidth: true
@@ -178,6 +196,7 @@ ApplicationWindow {
                             height: 40
                             color: index % 2 ? "#f3e5f5" : "#e8eaf6"
                             border.color: "#e0e0e0"
+
                             Row {
                                 anchors.fill: parent
                                 Rectangle {
@@ -215,6 +234,7 @@ ApplicationWindow {
                                         radius: 4
                                         visible: false
                                         z: 9
+
                                         TextInput {
                                             id: editInput
                                             anchors.centerIn: parent
@@ -227,12 +247,14 @@ ApplicationWindow {
                                             onAccepted: {
                                                 var newValue = text.trim();
                                                 if (newValue !== modelData) {
-                                                    dataManager.replaceElement(index, newValue);
+                                                    // Визуализатор с анимацией
+                                                    visualizer.replaceElement(index, newValue);
                                                 }
                                                 editBackground.visible = false;
                                             }
                                         }
                                     }
+
                                     // красный слой
                                     Rectangle {
                                         id: errorOverlay
@@ -243,6 +265,7 @@ ApplicationWindow {
                                         visible: false
                                         opacity: 0.4
                                     }
+
                                     Timer {
                                         id: localErrorTimer
                                         interval: 3000
@@ -250,6 +273,7 @@ ApplicationWindow {
                                             errorOverlay.visible = false;
                                         }
                                     }
+
                                     Connections {
                                         target: dataManager
                                         function onErrorOccurred(message) {
@@ -259,6 +283,7 @@ ApplicationWindow {
                                             }
                                         }
                                     }
+
                                     MouseArea {
                                         anchors.fill: parent
                                         onDoubleClicked: {
@@ -271,6 +296,7 @@ ApplicationWindow {
                                 }
                             }
                         }
+
                         //для пустой структуры
                         Rectangle {
                             anchors.fill: parent
@@ -283,10 +309,12 @@ ApplicationWindow {
                                 color: "#9e9e9e"
                             }
                         }
+
                         ScrollBar.vertical: ScrollBar {
                             policy: ScrollBar.AsNeeded
                         }
                     }
+
                     Text {
                         text: "Количество элементов: " + dataManager.elementCount
                         font.pixelSize: 14
@@ -295,6 +323,7 @@ ApplicationWindow {
                     }
                 }
             }
+
             // панель управления
             Rectangle {
                 Layout.fillWidth: true
@@ -307,13 +336,16 @@ ApplicationWindow {
                 layer.enabled: true
                 layer.smooth: true
                 layer.samples: 8
+
                 ScrollView {
                     anchors.fill: parent
                     anchors.margins: 15
                     clip: true
+
                     ColumnLayout {
                         width: parent.width
                         spacing: 20
+
                         GroupBox {
                             title: "Операции"
                             Layout.fillWidth: true
@@ -325,6 +357,7 @@ ApplicationWindow {
                                 border.color: "#9fa8da"
                                 radius: 8
                             }
+
                             ColumnLayout {
                                 anchors.fill: parent
                                 spacing: 10
@@ -339,7 +372,8 @@ ApplicationWindow {
                                     Button {
                                         text: "Вставить"
                                         highlighted: true
-                                        onClicked: dataManager.addElement(insertField.text)
+                                        // !!! Замена на визуализатор
+                                        onClicked: visualizer.insertElement(insertField.text)
                                         Material.background: Material.Indigo
                                         contentItem: Text {
                                             text: parent.text
@@ -351,12 +385,23 @@ ApplicationWindow {
                                         }
                                     }
                                 }
+
                                 Button {
                                     text: "Удалить последний элемент"
                                     Layout.fillWidth: true
-                                    onClicked: dataManager.removeElement()
+                                    // !!! Замена на визуализатор
+                                    onClicked: visualizer.removeLastElement()
                                     Material.background: Material.Red
+                                    contentItem: Text {
+                                        text: parent.text
+                                        font: parent.font
+                                        color: "black"
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                        elide: Text.ElideRight
+                                    }
                                 }
+
                                 RowLayout {
                                     TextField {
                                         id: indexField
@@ -371,14 +416,25 @@ ApplicationWindow {
                                     }
                                     Button {
                                         text: "Заменить"
-                                        onClicked: dataManager.replaceElement(
+                                        // !!! Замена на визуализатор
+                                        onClicked: visualizer.replaceElement(
                                             parseInt(indexField.text),
-                                            valueField.text)
+                                            valueField.text
+                                        )
                                         Material.background: Material.Amber
+                                        contentItem: Text {
+                                            text: parent.text
+                                            font: parent.font
+                                            color: "black"
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                            elide: Text.ElideRight
+                                        }
                                     }
                                 }
                             }
                         }
+
                         GroupBox {
                             title: "Дополнительные задания"
                             Layout.fillWidth: true
@@ -390,16 +446,19 @@ ApplicationWindow {
                                 border.color: "#9fa8da"
                                 radius: 8
                             }
+
                             ColumnLayout {
                                 anchors.fill: parent
                                 spacing: 10
+
                                 RowLayout {
                                     Button {
                                         text: "Найти медиану"
                                         Layout.fillWidth: true
                                         highlighted: true
+                                        // !!! Замена на визуализатор (только чтение, но пусть будет через него)
                                         onClicked: {
-                                            var med = dataManager.getMedian();
+                                            var med = visualizer.getMedian();
                                             medianResult.text = med.toFixed(2);
                                         }
                                         Material.background: Material.Teal
@@ -431,6 +490,7 @@ ApplicationWindow {
                                         }
                                     }
                                 }
+
                                 RowLayout {
                                     TextField {
                                         id: shiftField
@@ -441,16 +501,27 @@ ApplicationWindow {
                                     Button {
                                         text: "Циклический сдвиг"
                                         Layout.fillWidth: true
-                                        onClicked: dataManager.cyclicShift(parseInt(shiftField.text))
+                                        // !!! Замена на визуализатор
+                                        onClicked: visualizer.cyclicShift(parseInt(shiftField.text))
                                         Material.background: Material.Purple
+                                        contentItem: Text {
+                                            text: parent.text
+                                            font: parent.font
+                                            color: "black"
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                            elide: Text.ElideRight
+                                        }
                                     }
                                 }
                             }
                         }
+
                         Button {
                             text: "Очистить всё"
                             Layout.fillWidth: true
-                            onClicked: dataManager.clear()
+                            // !!! Замена на визуализатор
+                            onClicked: visualizer.clearAll()
                             Material.background: Material.Grey
                             contentItem: Text {
                                 text: parent.text
@@ -461,19 +532,28 @@ ApplicationWindow {
                                 elide: Text.ElideRight
                             }
                         }
+
+                        // Кнопка показа окна визуализации (работает!)
                         Button {
                             text: "Визуализация"
-                            onClicked: {
-                                if (!visWin) {
-                                    // создаем компонент или используем уже созданное окно
-                                }
-                                visWin.show()
+                            Layout.fillWidth: true
+                            highlighted: true
+                            onClicked: visualizer.showWindow()
+                            Material.background: Material.DeepPurple
+                            contentItem: Text {
+                                text: parent.text
+                                font: parent.font
+                                color: "white"
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                elide: Text.ElideRight
                             }
                         }
                     }
                 }
             }
         }
+
         // панель для ошибок
         Rectangle {
             Layout.fillWidth: true
@@ -491,15 +571,16 @@ ApplicationWindow {
             }
         }
     }
-    //обработчик ошибок
+
+    // обработчик ошибок
     Connections {
         target: dataManager
         function onErrorOccurred(message) {
-            // Сообщение в нижней панели
             errorText.text = message;
             errorTimer.restart();
         }
     }
+
     Timer {
         id: errorTimer
         interval: 3000

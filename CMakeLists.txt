@@ -4,8 +4,7 @@ project(lab2 VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
-
+find_package(Qt6 REQUIRED COMPONENTS Quick Widgets)
 qt_standard_project_setup(REQUIRES 6.8)
 
 qt_add_executable(applab2
@@ -15,6 +14,9 @@ qt_add_executable(applab2
     vectorstructure.cpp
     stackstructure.cpp
     queuestructure.cpp
+    visual.cpp
+    cellwidget.cpp
+    visualwindow.cpp
 )
 
 qt_add_qml_module(applab2
@@ -27,7 +29,10 @@ qt_add_qml_module(applab2
         SOURCES queuestructure.h queuestructure.cpp
         SOURCES datamanager.h datamanager.cpp
         SOURCES element.h
-        QML_FILES visual.qml
+        QML_FILES
+        SOURCES cellwidget.h cellwidget.cpp
+        SOURCES visual.h visual.cpp
+        SOURCES visualwindow.h visualwindow.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -41,9 +46,7 @@ set_target_properties(applab2 PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-target_link_libraries(applab2
-    PRIVATE Qt6::Quick
-)
+target_link_libraries(applab2 PRIVATE Qt6::Quick Qt6::Widgets)
 
 include(GNUInstallDirs)
 install(TARGETS applab2

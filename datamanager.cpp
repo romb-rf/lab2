@@ -207,13 +207,13 @@ double DataManager::getMedian() {
         emit errorOccurred("Нет данных для вычисления медианы");
         return 0.0;
     }
-//проверка что тип данных в структуре числовой
+    //проверка что тип данных в структуре числовой
     const Element& first = elements.front();
     if (!isInt(first) && !isDouble(first)) {
         emit errorOccurred("Медиана может быть вычислена только для числовых типов");
         return 0.0;
     }
-//сортировка через вектор
+    //сортировка через вектор
     std::vector<double> values;
     values.reserve(elements.size());
     for (const auto& el : elements) {
@@ -223,7 +223,7 @@ double DataManager::getMedian() {
             values.push_back(*p);
     }
     std::sort(values.begin(), values.end());
-//сам поиск медианы
+    //сам поиск медианы
     size_t n = values.size();
     if (n % 2 == 1) {
         return values[n / 2];
@@ -234,4 +234,18 @@ double DataManager::getMedian() {
 //сдвиг для доп задания
 void DataManager::cyclicShift(int positions) {
     shiftElements(positions);
+}
+int DataManager::getElementSize(const QString &input) const
+{
+    // Пробуем интерпретировать как целое
+    bool ok;
+    input.toInt(&ok);
+    if (ok) return sizeof(int);
+
+    // как вещественное
+    input.toDouble(&ok);
+    if (ok) return sizeof(double);
+
+    // иначе строка
+    return input.toUtf8().size() + 1; // размер в байтах + нуль-терминатор
 }

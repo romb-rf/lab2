@@ -11,7 +11,7 @@
 #include "VectorStructure.h"
 #include "StackStructure.h"
 #include "QueueStructure.h"
-
+class DataStructure;
 class DataManager : public QObject
 {
     Q_OBJECT
@@ -38,6 +38,8 @@ public:
 
     Q_INVOKABLE double getMedian();
     Q_INVOKABLE void cyclicShift(int positions);
+    QStringList getDisplayElements() const;
+    int getElementSize(const QString &input) const;
 
 signals:
     void structureChanged();
@@ -57,6 +59,9 @@ private:
     void updateElementsProperty();
     Element parseInput(const QString &input);
     QVariant elementToVariant(const Element &e) const;
+
+    // Возвращает указатель на активную структуру (или nullptr)
+    DataStructure* currentStructure() const;
 };
 
 #endif

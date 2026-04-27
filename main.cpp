@@ -1,18 +1,22 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include "datamanager.h"
-
+#include "visualwindow.h"
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
 
     DataManager dataManager;
+    VisualizationWindow visWindow(&dataManager);
+
+    // Показываем окно визуализации сразу
+    visWindow.show();
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("dataManager", &dataManager);
-
+    engine.rootContext()->setContextProperty("visualizer", &visWindow);
     engine.loadFromModule("lab2", "Main");
-    engine.loadFromModule("lab2", "visual");
+
     if (engine.rootObjects().isEmpty())
         return -1;
     return app.exec();
