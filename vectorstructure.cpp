@@ -71,7 +71,7 @@ void VectorStructure::addAt(int index, const Element& value) {
 
 void VectorStructure::removeAt(int index) {
     if (index >= m_data.size()) {
-        throw std::out_of_range("Индекс вне границ вектора");
+        throw std::out_of_range("Индекс выходит за границы");
     }
     m_data.erase(m_data.begin() + index);
     // Если после удаления вектор стал пустым, сбросить тип

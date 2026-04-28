@@ -6,8 +6,8 @@ import QtQuick.Controls.Material
 ApplicationWindow {
     id: root
     visible: true
-    width: 1100
-    height: 700
+    width: 1300
+    height: 900
     title: "Структуры"
     color: "#f5f5f5"
     Material.theme: Material.Light
@@ -395,7 +395,7 @@ ApplicationWindow {
                                                     parseInt(insertAtIndexField.text),
                                                     insertAtIndexValue.text
                                                 )
-                                                Material.background: Material.Teal
+                                                Material.background: Material.Indigo
                                                 contentItem: Text {
                                                     text: parent.text
                                                     font: parent.font
@@ -447,7 +447,7 @@ ApplicationWindow {
                                     Button {
                                         text: "Удалить по индексу"
                                         onClicked: visualizer.removeElementAt(parseInt(removeAtIndexField.text))
-                                        Material.background: Material.DeepOrange
+                                        Material.background: Material.Material.Red
                                         contentItem: Text {
                                             text: parent.text
                                             font: parent.font

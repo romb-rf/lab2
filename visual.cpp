@@ -15,7 +15,7 @@ static int getVariantByteSize(const QVariant &var)
 }
 
 StructureVisualizer::StructureVisualizer(DataManager *manager, QWidget *parent)
-    : QWidget(parent), m_manager(manager)
+    : QWidget(parent), m_manager(manager), m_isAnimating(false)
 {
     m_scrollArea = new QScrollArea(this);
     m_container  = new QWidget;
@@ -142,7 +142,9 @@ void StructureVisualizer::insertElement(const QString &value)
 
 void StructureVisualizer::removeCorrectElement() {
     if (m_cells.isEmpty()) {
+        m_isAnimating = false;
         m_manager->removeElement();
+        rebuildCells();
         return;
     }
 
@@ -194,7 +196,10 @@ void StructureVisualizer::replaceElement(int visualIndex, const QString &newValu
     group->start(QAbstractAnimation::DeleteWhenStopped);
 }
 void StructureVisualizer::animateRemove(int widgetIndex) {
-    if (widgetIndex < 0 || widgetIndex >= m_cells.size()) return;
+    if (widgetIndex < 0 || widgetIndex >= m_cells.size()) {
+        m_isAnimating = false;
+        return;
+    }
 
     CellWidget *cell = m_cells.at(widgetIndex);
     auto *group = new QSequentialAnimationGroup(this);
@@ -227,11 +232,13 @@ void StructureVisualizer::animateRemove(int widgetIndex) {
 void StructureVisualizer::clearAll()
 {
     m_manager->clear();
+    rebuildCells();
 }
 
 double StructureVisualizer::getMedian() const
 {
     return m_manager->getMedian();
+
 }
 
 void StructureVisualizer::cyclicShift(int positions)
@@ -258,10 +265,64 @@ void StructureVisualizer::addElementAt(int visualIndex, const QString& value) {
         fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
     }
 }
+// void StructureVisualizer::removeElementAt(int visualIndex) {
+//     if (m_currentType == "Stack" || m_currentType == "Queue") return;
+//     if (visualIndex < 0 || visualIndex >= m_cells.size()) return;
+//     m_manager->removeElementAt(visualIndex);
+//     rebuildCells();
+//     // анимация не нужна, элемент уже исчез (перестроение)
+// }
 void StructureVisualizer::removeElementAt(int visualIndex) {
-    if (m_currentType == "Stack" || m_currentType == "Queue") return;
-    if (visualIndex < 0 || visualIndex >= m_cells.size()) return;
-    m_manager->removeElementAt(visualIndex);
-    rebuildCells();
-    // анимация не нужна, элемент уже исчез (перестроение)
+    // Для не поддерживаемых типов сразу обращаемся к DataManager (он выдаст ошибку)
+    if (m_currentType == "Stack" || m_currentType == "Queue") {
+
+        return;
+    }
+
+    // Индекс за пределами визуального массива – тоже пробрасываем в DataManager
+    if (visualIndex < 0 || visualIndex >= m_cells.size()) {
+        m_manager->removeElementAt(visualIndex);
+        return;
+    }
+
+    // Защита от повторного нажатия во время анимации
+    if (m_isAnimating) return;
+    m_isAnimating = true;
+
+    // Для массива/вектора widgetIndex == modelIndex
+    animateRemoveAtIndex(visualIndex, visualIndex);
+}
+void StructureVisualizer::animateRemoveAtIndex(int widgetIndex, int modelIndex) {
+    if (widgetIndex < 0 || widgetIndex >= m_cells.size()) {
+        m_isAnimating = false;
+        return;
+    }
+
+    CellWidget *cell = m_cells.at(widgetIndex);
+    auto *group = new QSequentialAnimationGroup(this);
+
+    QPropertyAnimation *highlight = new QPropertyAnimation(cell, "opacity");
+    highlight->setDuration(200);
+    highlight->setStartValue(1.0);
+    highlight->setEndValue(0.5);
+    cell->setStyleSheet("background-color: #ffcdd2; border: 1px solid #e53935;");
+
+    QPropertyAnimation *fadeOut = new QPropertyAnimation(cell, "opacity");
+    fadeOut->setDuration(300);
+    fadeOut->setStartValue(0.5);
+    fadeOut->setEndValue(0.0);
+
+    group->addAnimation(highlight);
+    group->addPause(100);
+    group->addAnimation(fadeOut);
+
+    QString currentType = m_currentType;
+
+    connect(group, &QSequentialAnimationGroup::finished, this, [this, currentType, modelIndex]() {
+        m_manager->removeElementAt(modelIndex);
+        rebuildCells();
+        m_isAnimating = false;
+    });
+
+    group->start(QAbstractAnimation::DeleteWhenStopped);
 }

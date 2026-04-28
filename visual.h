@@ -34,6 +34,7 @@ private:
     void animateReplace(int index, const QString &newValue);
     void rebuildCellsInverted();
     void animateRemove(int widgetIndex);
+    void animateRemoveAtIndex(int widgetIndex, int modelIndex);
     QString generateAddress(int byteOffset) const;
     int totalSizeUpTo(int count) const;
 

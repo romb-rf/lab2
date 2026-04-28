@@ -65,17 +65,13 @@ ArrayStructure::DataType ArrayStructure::currentDataType() const {
     return m_dataType;
 }
 void ArrayStructure::addAt(int index, const Element& value) {
-    // Вставлять можно в позицию от 0 до m_size включительно (в конец)
     if (index > m_size) {
         throw std::out_of_range("Индекс вне допустимого диапазона для вставки");
     }
     if (m_size >= MAX_SIZE) {
         throw std::runtime_error("Массив переполнен");
     }
-    // Проверка типа (может выбросить исключение при несоответствии)
     checkTypeAndSet(value);
-
-    // Сдвигаем элементы вправо, освобождая позицию index
     for (size_t i = m_size; i > index; --i) {
         m_data[i] = m_data[i - 1];
     }
@@ -84,26 +80,13 @@ void ArrayStructure::addAt(int index, const Element& value) {
 }
 void ArrayStructure::removeAt(int index) {
     if (index >= m_size) {
-        throw std::out_of_range("Индекс вне границ массива");
+        throw std::out_of_range("Индекс выходит за границы");
     }
-    // Сдвигаем элементы влево, начиная с index
     for (size_t i = index; i < m_size - 1; ++i) {
         m_data[i] = m_data[i + 1];
     }
     --m_size;
-    // Если массив стал пустым, сбрасываем тип
     if (m_size == 0) {
         m_dataType = DataType::Unknown;
     }
 }
-// void ArrayStructure::addAt(int index, const Element& el) {
-//     if (index < 0 || index > static_cast<int>(m_data.size()))
-//         throw std::out_of_range("insertAt: index out of range");
-//     m_data.insert(m_data.begin() + index, el);
-// }
-
-// void ArrayStructure::removeAt(int index) {
-//     if (index < 0 || index >= static_cast<int>(m_data.size()))
-//         throw std::out_of_range("removeAt: index out of range");
-//     m_data.erase(m_data.begin() + index);
-// }
