@@ -33,6 +33,7 @@ qt_add_qml_module(applab2
         SOURCES cellwidget.h cellwidget.cpp
         SOURCES visual.h visual.cpp
         SOURCES visualwindow.h visualwindow.cpp
+
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

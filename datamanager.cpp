@@ -243,7 +243,18 @@ int DataManager::getElementSize(const QString &input) const
     return input.toUtf8().size() + 1;
 }
 void DataManager::clearAll() {
-    m_elementsCache.clear();
+    try {
+        switch (m_currentStruct) {
+        case StructType::Array:  if (m_array)  m_array->clear();  break;
+        case StructType::Vector: if (m_vector) m_vector->clear(); break;
+        case StructType::Stack:  if (m_stack)  m_stack->clear();  break;
+        case StructType::Queue:  if (m_queue)  m_queue->clear();  break;
+        }
+    } catch (const std::exception &e) {
+        emit errorOccurred(e.what());
+        return;
+    }
+    updateElementsProperty();
     emit elementsChanged();
     emit elementCountChanged();
 }
