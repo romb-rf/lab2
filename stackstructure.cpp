@@ -25,7 +25,7 @@ void StackStructure::add(const Element& value) {
 //удаление элемента
 void StackStructure::remove() {
     if (m_stack.empty())
-        throw std::runtime_error("Stack пуст");
+        throw std::out_of_range("Stack пуст");
     m_stack.pop();
     if (m_stack.empty()) m_dataType = DataType::Unknown;
 }

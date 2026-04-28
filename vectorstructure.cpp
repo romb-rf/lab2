@@ -60,3 +60,22 @@ void VectorStructure::clear() {
 VectorStructure::DataType VectorStructure::currentDataType() const {
     return m_dataType;
 }
+void VectorStructure::addAt(int index, const Element& value) {
+    if (index > m_data.size()) {
+        throw std::out_of_range("Индекс вне допустимого диапазона для вставки");
+    }
+    // Проверка и фиксация типа (может выбросить исключение)
+    checkTypeAndSet(value);
+    m_data.insert(m_data.begin() + index, value);
+}
+
+void VectorStructure::removeAt(int index) {
+    if (index >= m_data.size()) {
+        throw std::out_of_range("Индекс вне границ вектора");
+    }
+    m_data.erase(m_data.begin() + index);
+    // Если после удаления вектор стал пустым, сбросить тип
+    if (m_data.empty()) {
+        m_dataType = DataType::Unknown;
+    }
+}

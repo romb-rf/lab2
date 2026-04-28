@@ -26,6 +26,8 @@ public slots:
     void cyclicShift(int positions);
     void removeCorrectElement();
 
+    void addElementAt(int visualIndex, const QString& value);
+    void removeElementAt(int visualIndex);
 private:
     void rebuildCells();
     void animateRemoveLast();

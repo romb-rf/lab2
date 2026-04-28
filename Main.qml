@@ -376,23 +376,36 @@ ApplicationWindow {
                                         }
                                     }
                                 }
-
-                                Button {
-                                    text: "Удалить последний элемент"
-                                    Layout.fillWidth: true
-                                    // !!! Замена на визуализатор
-                                    onClicked: visualizer.removeCorrectElement()
-                                    Material.background: Material.Red
-                                    contentItem: Text {
-                                        text: parent.text
-                                        font: parent.font
-                                        color: "black"
-                                        horizontalAlignment: Text.AlignHCenter
-                                        verticalAlignment: Text.AlignVCenter
-                                        elide: Text.ElideRight
-                                    }
-                                }
-
+                                RowLayout {
+                                            visible: dataManager.currentType === "Array" || dataManager.currentType === "Vector"
+                                            TextField {
+                                                id: insertAtIndexField
+                                                Layout.fillWidth: true
+                                                placeholderText: "Индекс"
+                                                validator: IntValidator {}
+                                            }
+                                            TextField {
+                                                id: insertAtIndexValue
+                                                Layout.fillWidth: true
+                                                placeholderText: "Значение"
+                                            }
+                                            Button {
+                                                text: "Вставить по индексу"
+                                                onClicked: visualizer.addElementAt(
+                                                    parseInt(insertAtIndexField.text),
+                                                    insertAtIndexValue.text
+                                                )
+                                                Material.background: Material.Teal
+                                                contentItem: Text {
+                                                    text: parent.text
+                                                    font: parent.font
+                                                    color: "black"
+                                                    horizontalAlignment: Text.AlignHCenter
+                                                    verticalAlignment: Text.AlignVCenter
+                                                    elide: Text.ElideRight
+                                                }
+                                            }
+                                        }
                                 RowLayout {
                                     TextField {
                                         id: indexField
@@ -423,6 +436,50 @@ ApplicationWindow {
                                         }
                                     }
                                 }
+                                RowLayout {
+                                    visible: dataManager.currentType === "Array" || dataManager.currentType === "Vector"
+                                    TextField {
+                                        id: removeAtIndexField
+                                        Layout.fillWidth: true
+                                        placeholderText: "Индекс"
+                                        validator: IntValidator {}
+                                    }
+                                    Button {
+                                        text: "Удалить по индексу"
+                                        onClicked: visualizer.removeElementAt(parseInt(removeAtIndexField.text))
+                                        Material.background: Material.DeepOrange
+                                        contentItem: Text {
+                                            text: parent.text
+                                            font: parent.font
+                                            color: "black"
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                            elide: Text.ElideRight
+                                        }
+                                    }
+                                }
+
+                                Button {
+                                    text: "Удалить последний элемент"
+                                    Layout.fillWidth: true
+                                    // !!! Замена на визуализатор
+                                    onClicked: visualizer.removeCorrectElement()
+                                    Material.background: Material.Red
+                                    contentItem: Text {
+                                        text: parent.text
+                                        font: parent.font
+                                        color: "black"
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                        elide: Text.ElideRight
+                                    }
+                                }
+
+
+
+
+                                        // --- Удаление по индексу (только для Array/Vector) ---
+
                             }
                         }
 
@@ -481,6 +538,13 @@ ApplicationWindow {
                                         }
                                     }
                                 }
+
+
+
+
+
+
+
 
                                 RowLayout {
                                     TextField {

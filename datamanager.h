@@ -38,6 +38,10 @@ public:
     Q_INVOKABLE double getMedian();
     Q_INVOKABLE void cyclicShift(int positions);
     Q_INVOKABLE void clearAll();
+
+    Q_INVOKABLE void addElementAt(int index, const QString& input);
+
+    Q_INVOKABLE void removeElementAt(int index);
     QStringList getDisplayElements() const;
     int getElementSize(const QString &input) const;
 

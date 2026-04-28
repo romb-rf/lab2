@@ -17,6 +17,9 @@ public:
     void replace(size_t index, const Element& newValue);
     void shift(int positions);
 
+    void addAt(int index, const Element& value);
+    void removeAt(int index);
+
     std::vector<Element> getElements() const;
     std::string typeName() const;
     size_t size() const;

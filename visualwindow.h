@@ -20,6 +20,8 @@ public slots:
     void clearAll();
     double getMedian() const;
     void cyclicShift(int positions);
+    void addElementAt(int index, const QString& value);
+    void removeElementAt(int index);
 
 private:
     StructureVisualizer *m_visualizer;

@@ -239,3 +239,29 @@ void StructureVisualizer::cyclicShift(int positions)
     m_manager->shiftElements(positions);
     rebuildCells();
 }
+void StructureVisualizer::addElementAt(int visualIndex, const QString& value) {
+    if (m_currentType == "Stack" || m_currentType == "Queue") {
+        // можно эмитить ошибку или просто игнорировать
+        return;
+    }
+    m_manager->addElementAt(visualIndex, value);
+    rebuildCells();
+    // анимация вставленной ячейки (visualIndex теперь указывает на новый элемент)
+    if (visualIndex >= 0 && visualIndex < m_cells.size()) {
+        CellWidget* cell = m_cells.at(visualIndex);
+        // анимация появления
+        cell->setOpacity(0.0);
+        QPropertyAnimation* fadeIn = new QPropertyAnimation(cell, "opacity");
+        fadeIn->setDuration(300);
+        fadeIn->setStartValue(0.0);
+        fadeIn->setEndValue(1.0);
+        fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+}
+void StructureVisualizer::removeElementAt(int visualIndex) {
+    if (m_currentType == "Stack" || m_currentType == "Queue") return;
+    if (visualIndex < 0 || visualIndex >= m_cells.size()) return;
+    m_manager->removeElementAt(visualIndex);
+    rebuildCells();
+    // анимация не нужна, элемент уже исчез (перестроение)
+}

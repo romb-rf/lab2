@@ -28,3 +28,9 @@ void VisualizationWindow::replaceElement(int index, const QString &newValue) { m
 void VisualizationWindow::clearAll() { m_visualizer->clearAll(); }
 double VisualizationWindow::getMedian() const { return m_visualizer->getMedian(); }
 void VisualizationWindow::cyclicShift(int positions) { m_visualizer->cyclicShift(positions); }
+void VisualizationWindow::addElementAt(int index, const QString& value) {
+    m_visualizer->addElementAt(index, value);
+}
+void VisualizationWindow::removeElementAt(int index) {
+    m_visualizer->removeElementAt(index);
+}

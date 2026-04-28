@@ -25,7 +25,7 @@ void QueueStructure::add(const Element& value) {
 //удаление элемента
 void QueueStructure::remove() {
     if (m_queue.empty())
-        throw std::runtime_error("Queue пуста");
+        throw std::out_of_range("Queue пуста");
     m_queue.pop();
     if (m_queue.empty()) m_dataType = DataType::Unknown;
 }

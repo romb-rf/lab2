@@ -258,3 +258,37 @@ void DataManager::clearAll() {
     emit elementsChanged();
     emit elementCountChanged();
 }
+void DataManager::addElementAt(int index, const QString &input) {
+    Element el = parseInput(input);
+    try {
+        switch (m_currentStruct) {
+        case StructType::Array:  m_array->addAt(index, el); break;
+        case StructType::Vector: m_vector->addAt(index, el); break;
+        default:
+            throw std::runtime_error("Вставка по индексу не поддерживается для стека и очереди");
+        }
+    } catch (const std::exception &e) {
+        emit errorOccurred(e.what());
+        return;
+    }
+    updateElementsProperty();
+    emit elementsChanged();
+    emit elementCountChanged();
+}
+
+void DataManager::removeElementAt(int index) {
+    try {
+        switch (m_currentStruct) {
+        case StructType::Array:  m_array->removeAt(index); break;
+        case StructType::Vector: m_vector->removeAt(index); break;
+        default:
+            throw std::runtime_error("Удаление по индексу не поддерживается для стека и очереди");
+        }
+    } catch (const std::exception &e) {
+        emit errorOccurred(e.what());
+        return;
+    }
+    updateElementsProperty();
+    emit elementsChanged();
+    emit elementCountChanged();
+}
