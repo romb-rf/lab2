@@ -51,7 +51,6 @@ void StructureVisualizer::setStructureType(const QString &type)
 
     m_currentType = type;
 
-    // уничтожение старого слоя
     QLayout *oldLayout = m_container->layout();
     if (oldLayout) {
         QLayoutItem *item;
@@ -248,15 +247,12 @@ void StructureVisualizer::cyclicShift(int positions)
 }
 void StructureVisualizer::addElementAt(int visualIndex, const QString& value) {
     if (m_currentType == "Stack" || m_currentType == "Queue") {
-        // можно эмитить ошибку или просто игнорировать
         return;
     }
     m_manager->addElementAt(visualIndex, value);
     rebuildCells();
-    // анимация вставленной ячейки (visualIndex теперь указывает на новый элемент)
     if (visualIndex >= 0 && visualIndex < m_cells.size()) {
         CellWidget* cell = m_cells.at(visualIndex);
-        // анимация появления
         cell->setOpacity(0.0);
         QPropertyAnimation* fadeIn = new QPropertyAnimation(cell, "opacity");
         fadeIn->setDuration(300);
@@ -265,31 +261,19 @@ void StructureVisualizer::addElementAt(int visualIndex, const QString& value) {
         fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
     }
 }
-// void StructureVisualizer::removeElementAt(int visualIndex) {
-//     if (m_currentType == "Stack" || m_currentType == "Queue") return;
-//     if (visualIndex < 0 || visualIndex >= m_cells.size()) return;
-//     m_manager->removeElementAt(visualIndex);
-//     rebuildCells();
-//     // анимация не нужна, элемент уже исчез (перестроение)
-// }
+
 void StructureVisualizer::removeElementAt(int visualIndex) {
-    // Для не поддерживаемых типов сразу обращаемся к DataManager (он выдаст ошибку)
     if (m_currentType == "Stack" || m_currentType == "Queue") {
 
         return;
     }
-
-    // Индекс за пределами визуального массива – тоже пробрасываем в DataManager
     if (visualIndex < 0 || visualIndex >= m_cells.size()) {
         m_manager->removeElementAt(visualIndex);
         return;
     }
 
-    // Защита от повторного нажатия во время анимации
     if (m_isAnimating) return;
     m_isAnimating = true;
-
-    // Для массива/вектора widgetIndex == modelIndex
     animateRemoveAtIndex(visualIndex, visualIndex);
 }
 void StructureVisualizer::animateRemoveAtIndex(int widgetIndex, int modelIndex) {

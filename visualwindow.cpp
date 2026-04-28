@@ -4,7 +4,7 @@
 VisualizationWindow::VisualizationWindow(DataManager *manager, QWidget *parent)
     : QWidget(parent, Qt::Window)
 {
-    setWindowTitle("Memory Visualization");
+    setWindowTitle("Визуализация");
     resize(800, 500);
 
     m_visualizer = new StructureVisualizer(manager, this);

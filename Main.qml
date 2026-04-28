@@ -78,8 +78,6 @@ ApplicationWindow {
                         context.fill();
                     }
                 }
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // ВАЖНО: при смене типа дёргаем и dataManager, и визуализатор
                 onCurrentTextChanged: {
                     dataManager.setStructureType(currentText);
                     visualizer.setStructureType(currentText);
@@ -238,7 +236,6 @@ ApplicationWindow {
                                             onAccepted: {
                                                 var newValue = text.trim();
                                                 if (newValue !== modelData) {
-                                                    // Визуализатор с анимацией
                                                     visualizer.replaceElement(index, newValue);
                                                 }
                                                 editBackground.visible = false;
@@ -363,7 +360,6 @@ ApplicationWindow {
                                     Button {
                                         text: "Вставить"
                                         highlighted: true
-                                        // !!! Замена на визуализатор
                                         onClicked: visualizer.insertElement(insertField.text)
                                         Material.background: Material.Indigo
                                         contentItem: Text {
@@ -420,7 +416,6 @@ ApplicationWindow {
                                     }
                                     Button {
                                         text: "Заменить"
-                                        // !!! Замена на визуализатор
                                         onClicked: visualizer.replaceElement(
                                             parseInt(indexField.text),
                                             valueField.text
@@ -462,7 +457,6 @@ ApplicationWindow {
                                 Button {
                                     text: "Удалить последний элемент"
                                     Layout.fillWidth: true
-                                    // !!! Замена на визуализатор
                                     onClicked: visualizer.removeCorrectElement()
                                     Material.background: Material.Red
                                     contentItem: Text {
@@ -474,11 +468,6 @@ ApplicationWindow {
                                         elide: Text.ElideRight
                                     }
                                 }
-
-
-
-
-                                        // --- Удаление по индексу (только для Array/Vector) ---
 
                             }
                         }
@@ -504,7 +493,6 @@ ApplicationWindow {
                                         text: "Найти медиану"
                                         Layout.fillWidth: true
                                         highlighted: true
-                                        // !!! Замена на визуализатор (только чтение, но пусть будет через него)
                                         onClicked: {
                                             var med = visualizer.getMedian();
                                             medianResult.text = med.toFixed(2);
@@ -540,12 +528,6 @@ ApplicationWindow {
                                 }
 
 
-
-
-
-
-
-
                                 RowLayout {
                                     TextField {
                                         id: shiftField
@@ -556,7 +538,6 @@ ApplicationWindow {
                                     Button {
                                         text: "Циклический сдвиг"
                                         Layout.fillWidth: true
-                                        // !!! Замена на визуализатор
                                         onClicked: visualizer.cyclicShift(parseInt(shiftField.text))
                                         Material.background: Material.Purple
                                         contentItem: Text {
@@ -575,7 +556,6 @@ ApplicationWindow {
                         Button {
                             text: "Очистить всё"
                             Layout.fillWidth: true
-                            // !!! Замена на визуализатор
                             onClicked: visualizer.clearAll()
                             Material.background: Material.Grey
                             contentItem: Text {
@@ -588,7 +568,6 @@ ApplicationWindow {
                             }
                         }
 
-                        // Кнопка показа окна визуализации (работает!)
                         Button {
                             text: "Визуализация"
                             Layout.fillWidth: true
@@ -609,7 +588,6 @@ ApplicationWindow {
             }
         }
 
-        // панель для ошибок
         Rectangle {
             Layout.fillWidth: true
             height: 40

@@ -228,18 +228,14 @@ double DataManager::getMedian() {
 void DataManager::cyclicShift(int positions) {
     shiftElements(positions);
 }
+
 int DataManager::getElementSize(const QString &input) const
 {
-    // интерпретировать как целое
     bool ok;
     input.toInt(&ok);
     if (ok) return sizeof(int);
-
-    // как вещественное
     input.toDouble(&ok);
     if (ok) return sizeof(double);
-
-    // иначе строка
     return input.toUtf8().size() + 1;
 }
 void DataManager::clearAll() {
