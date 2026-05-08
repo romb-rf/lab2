@@ -5,7 +5,6 @@
 #include <QString>
 #include <QVariantList>
 #include <memory>
-
 #include "element.h"
 #include "ArrayStructure.h"
 #include "VectorStructure.h"
@@ -18,17 +17,13 @@ class DataManager : public QObject
     Q_PROPERTY(QString currentType READ currentType NOTIFY structureChanged)
     Q_PROPERTY(QVariantList elements READ elements NOTIFY elementsChanged)
     Q_PROPERTY(int elementCount READ elementCount NOTIFY elementsChanged)
-
 public:
     enum class StructType { Array, Vector, Stack, Queue };
     Q_ENUM(StructType)
-
     explicit DataManager(QObject *parent = nullptr);
-
     QString currentType() const;
     QVariantList elements() const;
     int elementCount() const;
-
     Q_INVOKABLE void setStructureType(const QString &type);
     Q_INVOKABLE void addElement(const QString &input);
     Q_INVOKABLE void removeElement();
@@ -38,13 +33,10 @@ public:
     Q_INVOKABLE double getMedian();
     Q_INVOKABLE void cyclicShift(int positions);
     Q_INVOKABLE void clearAll();
-
     Q_INVOKABLE void addElementAt(int index, const QString& input);
-
     Q_INVOKABLE void removeElementAt(int index);
     QStringList getDisplayElements() const;
     int getElementSize(const QString &input) const;
-
 signals:
     void structureChanged();
     void elementsChanged();
@@ -53,19 +45,14 @@ signals:
     void operationVisualized(const QString &operation, const QVariantList &params);
 private:
     StructType m_currentStruct = StructType::Vector;
-
     std::unique_ptr<ArrayStructure>   m_array;
     std::unique_ptr<VectorStructure>  m_vector;
     std::unique_ptr<StackStructure>   m_stack;
     std::unique_ptr<QueueStructure>   m_queue;
-
     QVariantList m_elementsCache;
-
     void updateElementsProperty();
     Element parseInput(const QString &input);
     QVariant elementToVariant(const Element &e) const;
-
     DataStructure* currentStructure() const;
 };
-
 #endif

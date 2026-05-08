@@ -39,6 +39,9 @@ void VectorStructure::replace(size_t index, const Element& newValue) {
 //сдвиг
 void VectorStructure::shift(int positions) {
     if (m_data.empty()) return;
+    if (positions < 0) {
+        throw std::runtime_error("Введите положительный сдвиг");
+    }
     positions = positions % static_cast<int>(m_data.size());
     if (positions == 0) return;
     std::rotate(m_data.rbegin(), m_data.rbegin() + positions, m_data.rend());
@@ -67,7 +70,6 @@ void VectorStructure::addAt(int index, const Element& value) {
     checkTypeAndSet(value);
     m_data.insert(m_data.begin() + index, value);
 }
-
 void VectorStructure::removeAt(int index) {
     if (index >= m_data.size()) {
         throw std::out_of_range("Индекс выходит за границы");

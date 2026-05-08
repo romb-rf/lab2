@@ -14,7 +14,7 @@ void ArrayStructure::checkTypeAndSet(const Element& value) {
     if (m_dataType == DataType::Unknown) {
         m_dataType = type;
     } else if (m_dataType != type) {
-        throw std::runtime_error("Несоответствие типов: не удается добавить элемент другого типа");
+        throw std::invalid_argument("Несоответствие типов: не удается добавить элемент другого типа");
     }
 }
 //добавление элемента

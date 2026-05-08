@@ -53,7 +53,6 @@ void DataManager::updateElementsProperty() {
         for (const auto& elem : container->getElements())
             m_elementsCache.append(elementToVariant(elem));
     };
-
     switch (m_currentStruct) {
     case StructType::Array:  addElements(m_array); break;
     case StructType::Vector: addElements(m_vector); break;
@@ -61,7 +60,6 @@ void DataManager::updateElementsProperty() {
     case StructType::Queue:  addElements(m_queue); break;
     }
 }
-
 void DataManager::setStructureType(const QString &type) {
     StructType newType;
     if (type == "Array")       newType = StructType::Array;
@@ -72,26 +70,21 @@ void DataManager::setStructureType(const QString &type) {
         emit errorOccurred("Неизвестный тип структуры");
         return;
     }
-
     if (newType == m_currentStruct)
         return;
-
     switch (m_currentStruct) {
     case StructType::Array:  m_array.reset();  break;
     case StructType::Vector: m_vector.reset(); break;
     case StructType::Stack:  m_stack.reset();  break;
     case StructType::Queue:  m_queue.reset();  break;
     }
-
     switch (newType) {
     case StructType::Array:  m_array = std::make_unique<ArrayStructure>();  break;
     case StructType::Vector: m_vector = std::make_unique<VectorStructure>(); break;
     case StructType::Stack:  m_stack = std::make_unique<StackStructure>();  break;
     case StructType::Queue:  m_queue = std::make_unique<QueueStructure>();  break;
     }
-
     m_currentStruct = newType;
-
     emit structureChanged();
     updateElementsProperty();
     emit elementsChanged();
@@ -115,7 +108,6 @@ void DataManager::addElement(const QString &input) {
     emit operationVisualized("add", QVariantList());
     emit elementCountChanged();
 }
-
 void DataManager::removeElement() {
     try {
         switch (m_currentStruct) {
@@ -132,7 +124,6 @@ void DataManager::removeElement() {
     emit elementsChanged();
     emit elementCountChanged();
 }
-
 void DataManager::replaceElement(int index, const QString &newValue) {
     Element el = parseInput(newValue);
     try {
@@ -146,7 +137,6 @@ void DataManager::replaceElement(int index, const QString &newValue) {
         emit errorOccurred(e.what());
         return;
     }
-
     updateElementsProperty();
     emit elementsChanged();
 }
@@ -165,7 +155,6 @@ void DataManager::shiftElements(int positions) {
     }
     updateElementsProperty();
     emit elementsChanged();
-
 }
 //очистка
 void DataManager::clear() {
@@ -182,7 +171,6 @@ void DataManager::clear() {
     }
     updateElementsProperty();
     emit elementsChanged();
-    emit operationVisualized("clear", QVariantList());
     emit elementCountChanged();
 }
 //получение медианы
@@ -195,16 +183,15 @@ double DataManager::getMedian() {
     case StructType::Stack:  elements = m_stack->getElements(); break;
     case StructType::Queue:  elements = m_queue->getElements(); break;
     }
-
     if (elements.empty()) {
         emit errorOccurred("Нет данных для вычисления медианы");
-        return 0.0;
+        return 0;
     }
     //проверка что тип данных в структуре числовой
     const Element& first = elements.front();
     if (!isInt(first) && !isDouble(first)) {
         emit errorOccurred("Медиана может быть вычислена только для числовых типов");
-        return 0.0;
+        return 0;
     }
     //сортировка через вектор
     std::vector<double> values;
@@ -226,9 +213,13 @@ double DataManager::getMedian() {
 }
 //сдвиг для доп задания
 void DataManager::cyclicShift(int positions) {
-    shiftElements(positions);
+    try{
+        shiftElements(positions);
+    } catch (const std::exception &e) {
+        emit errorOccurred(e.what());
+        return;
+    }
 }
-
 int DataManager::getElementSize(const QString &input) const
 {
     bool ok;
@@ -271,7 +262,6 @@ void DataManager::addElementAt(int index, const QString &input) {
     emit elementsChanged();
     emit elementCountChanged();
 }
-
 void DataManager::removeElementAt(int index) {
     try {
         switch (m_currentStruct) {
